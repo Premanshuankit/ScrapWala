@@ -50,7 +50,7 @@ const handleNewUser = async (req, res) => {
         })
         console.log(newUser)
         logger.info(`newUser, ${newUser}`)
-        res.status(201).send(`user with name '${user}' was created!!!`)
+        res.status(201).json({ message: `user with name '${user}' was created!!!`})
 
     } catch (error) {
         if (error.code === 11000) {
