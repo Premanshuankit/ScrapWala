@@ -53,10 +53,16 @@ const handleNewUser = async (req, res) => {
         res.status(201).json({ message: `user with name '${user}' was created!!!`})
 
     } catch (error) {
+        // if (error.code === 11000) {
+        //     return res.status(409).json({ message: 'Username or email or mobile already exists!!!!!!!' });
+        // }
+        // res.status(500).send(error.message)
+
         if (error.code === 11000) {
-            return res.status(409).json({ message: 'Username or email or mobile already exists!!!!!!!' });
+            const field = Object.keys(error.keyValue)[0];
+            return res.status(409).json({ field: field, message: `${field} already exists` });
         }
-        res.status(500).send(error.message)
+        res.status(500).json({ message: "Server error" });
     }
 }
 

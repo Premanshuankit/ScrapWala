@@ -7,7 +7,7 @@ const handleLogin = async (req, res) => {
     const {identifier, pwd} = req.body
 
     if (!identifier || !pwd) {
-        return res.status(400).send('identifier and pwd are required')
+        return res.status(400).json({ message: 'identifier and pwd are required' })
     }
 
     // Search by username OR email OR mobile
@@ -31,30 +31,6 @@ const handleLogin = async (req, res) => {
         const roles = [...foundUser.roles.values()]
 
         // create JWTs
-        // const accessToken = jwt.sign(
-        //     { "UserInfo": 
-        //         {
-                    
-        //             "username": foundUser.username,
-        //             "roles": roles
-        //         }
-        //     },
-        //     process.env.ACCESS_TOKEN_SECRET,
-        //     { expiresIn: '300s'}
-        // )
-
-        // Create Access Token (Store id + role)
-        // const accessToken = jwt.sign(
-        //     { "UserInfo": 
-        //         {
-        //             "id": foundUser._id,
-        //             "roles": roles
-        //         }
-        //     },
-        //     process.env.ACCESS_TOKEN_SECRET,
-        //     { expiresIn: '15m' }
-        // )
-
         const accessToken = jwt.sign(
             {
                 UserInfo: {
@@ -79,6 +55,7 @@ const handleLogin = async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET,
             { expiresIn: '1d' }
         )
+        logger.info('refreshToken created', refreshToken)
 
         // saving refresh token with current user
         foundUser.refreshToken = refreshToken
