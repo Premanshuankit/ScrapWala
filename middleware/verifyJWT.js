@@ -9,6 +9,7 @@ const verifyJwt = ( req, res, next) => {
     console.log(authHeader, ' authHeader')
     logger.info(authHeader, ' authHeader')
     const token = authHeader.split(' ')[1]
+    console.log("SECRET: ", process.env.ACCESS_TOKEN_SECRET);
     jwt.verify(
         token,
         process.env.ACCESS_TOKEN_SECRET,
@@ -21,8 +22,8 @@ const verifyJwt = ( req, res, next) => {
             req.userId = decoded.UserInfo.id
             req.roles = decoded.UserInfo.roles 
 
-            console.log(decoded, 'decoded')
-            logger.info(decoded, 'decoded')
+            console.log('decoded', decoded)
+            logger.info('decoded', decoded)
             next()
         }
     )
