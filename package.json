@@ -21,6 +21,7 @@
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.23.0",
+    "multer": "^2.1.0",
     "newrelic": "^13.13.0",
     "winston": "^3.19.0"
   }

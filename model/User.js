@@ -21,6 +21,29 @@ const userSchema = new mongoose.Schema({
         trim: true,
         minlength: 2
     },
+    shopname: {
+        type: String,
+        required: true,
+        trim: true,
+        minlength: 5
+    },
+    shopImage: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    rating: {
+        average: {
+            type: Number,
+            min: 0,
+            max: 5,
+            default: 0
+        },
+        count: {
+            type: Number,
+            default: 0
+        }
+    },
     email: {
         type: String,
         required: true,

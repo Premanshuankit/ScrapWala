@@ -5,11 +5,23 @@ const registerSchema = require('../validators/registerValidator')
 const logger = require('../utils/logger')
 
 const handleNewUser = async (req, res) => {
-    const {user, fname, lname, email, mobile, address, pwd, roles} = req.body
+    const {user, fname, lname, email, mobile, address, pwd, roles, shopname} = req.body
 
-    if (!user || !fname || !lname || !email  || !mobile || !address  || !pwd) {
-        return res.status(400).send('username/fname/lname/email/mobile/address/pwd are required')
+    if (!user || !fname || !lname || !email  || !mobile || !address  || !pwd || !shopname) {
+        return res.status(400).send('username/fname/lname/email/mobile/address/pwd/shopname are required')
     }
+
+    // Parse address string to object
+    let parsedAddress;
+    try {
+        parsedAddress = JSON.parse(req.body.address);
+    } catch (err) {
+        return res.status(400).json({ message: "Invalid address format" });
+    }
+
+    // Replace string with object
+    req.body.address = parsedAddress;
+
     const { error } = registerSchema.validate(req.body)
     if (error) {
         return res.status(400).json({ message: error.details[0].message })
@@ -44,10 +56,13 @@ const handleNewUser = async (req, res) => {
             lastname: lname,
             email: email,
             mobile: mobile,
-            address: address,
+            address: parsedAddress,
             roles: assignedRoles,
-            password: hashedPwd
+            password: hashedPwd,
+            shopname: shopname,
+            shopImage: req.file ? req.file.path : null
         })
+        console.log("req.file:", req.file);
         console.log(newUser)
         logger.info(`newUser, ${newUser}`)
         res.status(201).json({ message: `user with name '${user}' was created!!!`})

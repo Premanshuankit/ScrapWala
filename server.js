@@ -27,6 +27,7 @@ connectDB()
 app.use(cors(corsOptions));
 app.use(express.json())
 app.use(cookieParser())
+app.use("/uploads", express.static("uploads"));
 
 app.use('/', routerHome)
 app.use('/register', routerRegister)
