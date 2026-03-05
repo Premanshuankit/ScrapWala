@@ -4,8 +4,11 @@ const router = express.Router()
 const verifyJwt = require('../middleware/verifyJWT')
 const verifyRoles = require('../middleware/verifyRoles')
 const ROLES_LIST = require('../config/roles_list')
-const {createOrder} = require('../controllers/orderPlacedController')
+const {createOrder, getBuyerOrders, getSellerOrders} = require('../controllers/orderPlacedController')
 
 router.post('/:sellRequestId', verifyJwt, verifyRoles(ROLES_LIST.Seller, ROLES_LIST.Buyer), createOrder)
+
+router.get('/buyer', verifyJwt, verifyRoles(ROLES_LIST.Buyer), getBuyerOrders) 
+router.get('/seller', verifyJwt, verifyRoles(ROLES_LIST.Seller), getSellerOrders)
 
 module.exports = router

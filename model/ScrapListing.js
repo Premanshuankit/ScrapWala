@@ -6,7 +6,8 @@ const scrapListingSchema = new mongoose.Schema(
         buyerId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true
+            required: true,
+            unique: true
         },
 
         scrapType: {

@@ -8,7 +8,11 @@ const sellRequestSchema = new mongoose.Schema(
             ref: 'User',
             required: true
         },
-
+        buyerId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        },
         scrapType: {
             type: String,
             required: true,

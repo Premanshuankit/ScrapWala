@@ -1,6 +1,7 @@
 const ScrapListing = require('../model/ScrapListing')
 const SCRAP_TYPES = require('../config/scrapTypes')
 const logger = require('../utils/logger')
+const mongoose = require('mongoose')
 
 const createListing = async (req, res) => {
     try {
@@ -58,12 +59,115 @@ const createListing = async (req, res) => {
 }
 
 const getAllListing = async (req, res) => {
-    const allScrapListing = await ScrapListing.find()
-    if (!allScrapListing) {
-        return res.status(204).json({ 'messgae': 'no ScrapListing found'})
+  try {
+    const loggedInUserId = req.userId;
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const shopname = req.query.shopname?.trim() || "";
+    const scrapType = req.query.scrapType?.trim() || "";
+    const firstname = req.query.firstname?.trim() || "";
+    const city = req.query.city?.trim() || "";
+    const pincode = req.query.pincode?.trim() || "";
+
+    const skip = (page - 1) * limit;
+
+    const baseMatch = { isActive: true };
+
+    if (scrapType) {
+      baseMatch.scrapType = scrapType;
     }
-    res.json(allScrapListing)
-}
+
+    const pipeline = [
+      { $match: baseMatch },
+
+      {
+        $lookup: {
+          from: "users",
+          localField: "buyerId",
+          foreignField: "_id",
+          as: "buyer",
+        },
+      },
+
+      { $unwind: "$buyer" },
+
+      {
+        $match: {
+          "buyer._id": { $ne: new mongoose.Types.ObjectId(loggedInUserId) }
+        }
+      },
+
+      // Apply shopname + firstname  + city + pincode filters
+      ...(shopname || firstname || city || pincode
+        ? [
+            {
+              $match: {
+                ...(shopname && {
+                  "buyer.shopname": {
+                    $regex: shopname,
+                    $options: "i",
+                  },
+                }),
+                ...(firstname && {
+                  "buyer.firstname": {
+                    $regex: firstname,
+                    $options: "i",
+                  },
+                }),
+                ...(city && {
+                  "buyer.address.city": {
+                    $regex: city,
+                    $options: "i",
+                  },
+                }),
+                ...(pincode && {
+                  "buyer.address.pincode": {
+                    $regex: pincode,
+                    $options: "i",
+                  },
+                }),
+              },
+            },
+          ]
+        : []),
+
+      { $sort: { createdAt: -1 } },
+
+      {
+        $facet: {
+          data: [
+            { $skip: skip },
+            { $limit: limit },
+          ],
+          totalCount: [{ $count: "count" }],
+        },
+      },
+    ];
+
+    const result = await ScrapListing.aggregate(pipeline);
+
+    const listings = result[0]?.data || [];
+    const totalItems = result[0]?.totalCount[0]?.count || 0;
+    const totalPages = Math.ceil(totalItems / limit);
+
+    console.log("PAGE:", page);
+    console.log("TOTAL ITEMS:", totalItems);
+    console.log("TOTAL PAGES:", totalPages);
+
+    res.json({
+      data: listings,
+      currentPage: page,
+      totalPages,
+      totalItems,
+    });
+
+  } catch (error) {
+    console.error("GET LISTING ERROR:", error);
+    res.status(500).json({ message: "Server error getAllListing" });
+  }
+};
 
 const getAllListingByBuyerId = async (req, res) => {
 

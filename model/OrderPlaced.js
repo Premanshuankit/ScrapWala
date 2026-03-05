@@ -58,6 +58,6 @@ const orderSchema = new mongoose.Schema(
     }
 )
 
-orderSchema.index({ sellRequestId: 1 }, { unique: true })
+orderSchema.index({ sellRequestId: 1 }, { sellerId: 1 }, { buyerId: 1 },  { unique: true })
 
 module.exports = mongoose.model('Order', orderSchema)
