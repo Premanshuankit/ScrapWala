@@ -1,5 +1,5 @@
 const allowedOrigins = [
-    'https://scrap-wala-frontend-hzhx.vercel.app/',
+    'https://scrap-wala-frontend-hzhx.vercel.app',
     'https://scrapwallah.onrender.com',
     'http://127.0.0.1:3000',
     'http://localhost:3500',
